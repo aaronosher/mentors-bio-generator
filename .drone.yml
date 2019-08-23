@@ -1,0 +1,46 @@
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: install
+    image: node
+    commands:
+      - npm ci
+
+  - name: lint
+    image: node
+    commands:
+      - npm run lint
+    depends_on:
+      - install
+
+  - name: test
+    image: node
+    commands:
+      - npm run test -- --coverage --ci
+    depends_on:
+      - install
+
+  - name: build
+    image: node
+    commands:
+      - npm run build
+    depends_on:
+      - lint
+      - test
+
+  - name: deploy
+    image: node
+    commands:
+      - echo not implemented
+    depends_on:
+      - build
+    when:
+      branch:
+        - master
+      event:
+        - push
